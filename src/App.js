@@ -16,36 +16,60 @@ function App() {
   const [number, setNumber] = useState('');
   const [CanVote, setCanVote] = useState(true);
 
+  useEffect(() => {
+    const loadData = async () => {
+        await getCandidates();
+        await getCurrentStatus();
+        await canVote();
+        await getRemainingTime(); // Initial call to set remaining time
+    };
 
-  useEffect( () => {
-    getCandidates();
-    getRemainingTime();
-    getCurrentStatus();
+    loadData();
+
+    const interval = setInterval(() => {
+        getRemainingTime(); // Update remaining time every minute
+    }, 3000); // Polling every 3 seconds
+
     if (window.ethereum) {
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
+        window.ethereum.on('accountsChanged', handleAccountsChanged);
     }
 
-    return() => {
-      if (window.ethereum) {
-        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-      }
-    }
+    return () => {
+        clearInterval(interval); // Cleanup the interval on component unmount
+        if (window.ethereum) {
+            window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        }
+    };
+}, []); // Ensure dependencies are correctly listed if any
+
+  useEffect(() => { //live voting
+    const fetchVotes = async () => {
+        const candidatesList = await getCandidates(); // Ensure this function updates candidate votes
+        setCandidates(candidatesList);
+    };
+
+    fetchVotes(); // Initial fetch
+
+    const voteInterval = setInterval(fetchVotes, 3000); // Update every 3 seconds
+
+    return () => clearInterval(voteInterval); // Cleanup on unmount
   }, []);
 
-
-  async function vote() {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      const signer = provider.getSigner();
-      const contractInstance = new ethers.Contract (
+  async function vote(candidateIndex) {
+    if (!CanVote) {
+        alert("You have already voted.");
+        return;
+    }
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const signer = provider.getSigner();
+    const contractInstance = new ethers.Contract(
         contractAddress, contractAbi, signer
-      );
-
-      const tx = await contractInstance.vote(number);
-      await tx.wait();
-      canVote();
-
-  }
+    );
+    const tx = await contractInstance.vote(candidateIndex);
+    await tx.wait();
+    canVote(); // This will update the CanVote to false after a successful vote
+}
 
 
   async function canVote() {
@@ -56,27 +80,30 @@ function App() {
         contractAddress, contractAbi, signer
       );
       const voteStatus = await contractInstance.voters(await signer.getAddress());
-      setCanVote(voteStatus);
+      setCanVote(!voteStatus);
 
   }
 
   async function getCandidates() {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      const signer = provider.getSigner();
-      const contractInstance = new ethers.Contract (
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const signer = provider.getSigner();
+    const contractInstance = new ethers.Contract(
         contractAddress, contractAbi, signer
-      );
-      const candidatesList = await contractInstance.getAllVotesOfCandiates();
-      const formattedCandidates = candidatesList.map((candidate, index) => {
-        return {
-          index: index,
-          name: candidate.name,
-          voteCount: candidate.voteCount.toNumber()
-        }
-      });
-      setCandidates(formattedCandidates);
-  }
+    );
+    const candidatesList = await contractInstance.getAllVotesOfCandidates();
+
+    const formattedCandidates = candidatesList.map((candidate,index) => ({
+        index: index,
+        name: candidate.name,
+        voteCount: candidate.voteCount.toNumber() // Assuming voteCount is a BigNumber
+    }));
+
+    formattedCandidates.sort((a, b) => b.voteCount - a.voteCount);
+
+
+    return formattedCandidates;
+}
 
 
   async function getCurrentStatus() {
@@ -92,15 +119,16 @@ function App() {
   }
 
   async function getRemainingTime() {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);  
-      await provider.send("eth_requestAccounts", []);
-      const signer = provider.getSigner();
-      const contractInstance = new ethers.Contract (
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const signer = provider.getSigner();
+    const contractInstance = new ethers.Contract(
         contractAddress, contractAbi, signer
-      );
-      const time = await contractInstance.getRemainingTime();
-      setremainingTime(parseInt(time, 16));
-  }
+    );
+    const time = await contractInstance.getRemainingTime();
+    setremainingTime(parseInt(time.toString(), 10)); // Ensure to convert BigNumber to number
+}
+
 
   function handleAccountsChanged(accounts) {
     if (accounts.length > 0 && account !== accounts[0]) {
