@@ -1,99 +1,87 @@
-.login-container {
+/* Global Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+body, html {
+  height: 100%; /* Ensuring full height */
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #121212; /* Very dark grey */
+  color: #b0b0b0; /* Soft grey text */
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background-color: #f1f1f1;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
 }
 
-.welcome-message {
-  font-size: 2rem;
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.login-button {
-  background-color: #007bff;
-  color: #fff;
-  font-size: 1.2rem;
-  border: none;
-  border-radius: 0.3rem;
-  padding: 1rem 2rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.login-button:hover {
-  background-color: #0069d9;
-}
-
-
+/* Main Container */
 .connected-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  background-color: #f1f1f1;
+  width: 70%; /* Increased width for a larger box */
+  min-height: 70vh; /* Optional: you can adjust the height as well */
+  background-color: #222222; /* Dark grey */
+  padding: 40px; /* Increased padding for a larger overall box */
+  border-radius: 10px; /* Slightly larger radius for a softer look */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6); /* Enhanced shadow for depth */
 }
 
-.connected-header {
-  font-size: 2rem;
-  text-align: center;
-  margin-bottom: 2rem;
+/* Header Text */
+.header-text {
+  font-size: 24px; /* Larger font for headers */
+  color: #ffffff; /* White for better contrast */
+  margin-bottom: 20px; /* Space below headers */
+  width: 100%; /* Full width */
+  text-align: center; /* Center text */
 }
 
-.connected-account {
-  font-size: 1.2rem;
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.connected-button {
-  background-color: #007bff;
-  color: #fff;
-  font-size: 1.2rem;
-  border: none;
-  border-radius: 0.3rem;
-  padding: 1rem 2rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-bottom: 2rem;
-}
-
-.connected-button:hover {
-  background-color: #0069d9;
-}
-
-.connected-contract-address {
-  font-size: 1.2rem;
-  text-align: center;
-}
-
-
+/* Table Styles */
 .candidates-table {
+  width: 100%; /* Full width of the container */
+  margin-bottom: 20px; /* Space below the table */
   border-collapse: collapse;
-  width: 50%;
-  text-align:center;
 }
 
 .candidates-table th, .candidates-table td {
-  padding: 8px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
+  padding: 10px;
+  border: 1px solid #333; /* Subtle borders for cells */
+  text-align: center; /* Centering text */
+  color: #d6d6d6; /* Light grey text for readability */
 }
 
 .candidates-table th {
-  background-color: #f2f2f2;
+  background-color: #2c2c2c; /* Darker for headers */
 }
 
-input[type=number] {
+/* Input and Button Styles */
+input[type='number'], button {
   padding: 10px;
-  border: 1px solid #ccc;
+  margin: 5px 0; /* Margin for spacing */
   border-radius: 4px;
-  box-sizing: border-box;
-  font-size: 16px;
-  margin-bottom: 10px;
+  border: none;
+  width: 100%; /* Full width */
+  text-align: center;
+  background-color: #333; /* Dark input fields and buttons */
+  color: #fff; /* White text */
 }
 
+button {
+  background-color: #333333; /* Dark grey buttons */
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #444444; /* Hover effect */
+}
+
+input[type='number'] {
+  background-color: #333; /* Dark input fields */
+  color: #fff; /* White text */
+}
